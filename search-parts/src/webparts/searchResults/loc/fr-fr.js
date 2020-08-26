@@ -60,6 +60,7 @@ define([], function() {
         "PanelCloseButtonAria": "Proche",
         "UseRefinersWebPartLabel": "Connectez un Web Part de filtres de recherche",
         "UseRefinersFromComponentLabel": "Utiliser les filtres à partir de ce composant",
+        "UseSearchVerticalsLabel": "Se connecter à un composant WebPart vertical de recherche",
         "UsePaginationFromComponentLabel": "Utiliser la pagination à partir de ce composant",
         "RefinementFilters": "Filtres d'affinements",
         "customTemplateFieldsLabel": "Valeurs de champ de modèle personnalisé",
@@ -83,6 +84,8 @@ define([], function() {
             "SortableFieldDisplayValueField": "Intitulé du champ à afficher",
             "EditSortableFieldsLabel": "Éditer les champs de tri",
             "EditSortLabel": "Éditer l'ordre de tri",
+            "EditSortLabelFieldName": "Nom de domaine",
+            "EditSortDirection": "Direction du tri",
             "SortInvalidSortableFieldMessage": "Cette propriété n'est pas triable"
         },
         "Synonyms": {
@@ -108,6 +111,7 @@ define([], function() {
             "ConditionValueLabel": "Valeur de la condition",
             "CondtionOperatorValue": "Opérateur",
             "ExternalUrlLabel": "URL du template externe",
+            "ExternalUrlPlaceholder": "https://mysite/Documents/external.html",
             "EqualOperator": "Égal",
             "NotEqualOperator": "N'est pas égal",
             "ContainsOperator": "Contient",
@@ -156,7 +160,6 @@ define([], function() {
             "PersonaSizeLarge": "Grand",
             "PersonaSizeExtraLarge": "Très grand"
         },
-        "ManagedPropertiesListPlaceHolder": "Sélectionnez ou ajoutez une propriété gérée",
         "QueryModifier": {
             "FieldLbl": "Modificateurs de requête",
             "ConfigureBtn": "Configurer",
@@ -176,6 +179,10 @@ define([], function() {
             "HideNavigationFieldName": "Cacher/Montrer les boutons de navigation (précédent, suivant, etc.)",
             "HideFirstLastPagesFieldName": "Cacher/Montrer les boutons de navigation 'dernier'/'premier'.",
             "HideDisabledFieldName": "Cacher/Montrer les boutons de navigation si désactivés",
+        },
+        "Extensibility": {
+            "GroupName": "Third Party Extensibility",
+            "ButtonLabel": "Load Extensibility"
         }
     }
 });

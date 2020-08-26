@@ -1,24 +1,23 @@
 import * as React from "react";
-import IBaseRefinerTemplateProps from '../IBaseRefinerTemplateProps';
-import IBaseRefinerTemplateState from '../IBaseRefinerTemplateState';
-import { IRefinementValue, RefinementOperator } from "../../../../../models/ISearchResult";
+import { IRefinerProps, IRefinerState, IRefinementValue, RefinementOperator } from "search-extensibility";
 import { DatePicker, IDatePickerProps, IDatePickerStyleProps, IDatePickerStyles } from "office-ui-fabric-react/lib/DatePicker";
 import { Link } from "office-ui-fabric-react/lib/Link";
-import * as update from 'immutability-helper';
+import update from 'immutability-helper';
 import * as strings from 'SearchRefinersWebPartStrings';
 import { Loader } from "../../../../../services/TemplateService/LoadHelper";
 import { ITheme } from "@uifabric/styling";
 
 // CSS
 import styles from './DateRangeTemplate.module.scss';
+import { CssHelper } from "../../../../../helpers/CssHelper";
 
-export interface IDateRangeTemplateState extends IBaseRefinerTemplateState {
+export interface IDateRangeTemplateState extends IRefinerState {
     selectedFromDate: Date;
     selectedToDate: Date;
     haveMoment: boolean;
 }
 
-export interface IDateRangeTemplateProps extends IBaseRefinerTemplateProps {
+export interface IDateRangeTemplateProps extends IRefinerProps {
     language: string;
 }
 
@@ -101,8 +100,10 @@ export default class DateRangeTemplate extends React.Component<IDateRangeTemplat
             maxDate.setDate(this.state.selectedToDate.getDate() - 1);
             fromProps.maxDate = maxDate;
         }
+        
+        const filterClassName = CssHelper.prefixAndValidateClassName("pnp-refiner-daterange", this.props.refinementResult.FilterName);
 
-        return <div className={styles.pnpRefinersTemplateDateRange}>
+        return <div className={styles.pnpRefinersTemplateDateRange + " " + filterClassName}>
             {
                 this.props.showValueFilter ? 
                     <div className='pnp-font-s'>Value filters are not allowed for dates. Clear 'show filter' to remove this message</div>
@@ -145,7 +146,7 @@ export default class DateRangeTemplate extends React.Component<IDateRangeTemplat
         }
     }
 
-    public UNSAFE_componentWillReceiveProps(nextProps: IBaseRefinerTemplateProps) {
+    public UNSAFE_componentWillReceiveProps(nextProps: IRefinerProps) {
 
         if (nextProps.shouldResetFilters) {
             this.setState({

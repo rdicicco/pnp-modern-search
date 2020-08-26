@@ -19,27 +19,17 @@ define([], function() {
         "SelectedFiltersLabel": "Filtros seleccionados:",
         "RefinerLayoutLabel": "Diseño de filtros",
         "ConnectToSearchResultsLabel": "Conectar al Web Part de Resultados de Búsqueda",
+        "DialogButtonLabel": "Editar estilos",
         "Refiners": {
             "RefinersFieldLabel": "Refinadores",
             "RefinerManagedPropertyField": "Filtrar la propiedad administrada",
-            "RefinerDisplayValueField": "Nombre del filtro para mostrar",
-            "RefinerTemplateField": "Plantilla de refinador",
             "RefinersFieldDescription": "Especifica las propiedades administradas utilizadas como refinadores. Si no hay valores para una propiedad de filtro, no aparecerá en el panel.",
             "EditRefinersLabel": "Editar refinadores",
-            "AvailableRefinersLabel": "Refinadores disponibles",
             "ApplyFiltersLabel": "Aplicar",
             "ClearFiltersLabel": "Limpiar",
             "ShowExpanded": "Expandir filtro predeterminado",
             "showValueFilter": "Mostrar filtro para valores de refinamiento",
             "Templates": {
-                "RefinementItemTemplateLabel": "Elemento de refinamiento predeterminado",
-                "MutliValueRefinementItemTemplateLabel": "Elemento de refinamiento multivalor",
-                "PersonaRefinementItemLabel": "Persona",
-                "DateRangeRefinementItemLabel": "Rango Fecha",
-                "FixedDateRangeRefinementItemLabel": "Rango Fecha (intervalos fijos)",
-                "FileTypeRefinementItemTemplateLabel": "Tipos de archivos",
-                "FileTypeMutliValueRefinementItemTemplateLabel": "Múltiples tipos de archivos",
-                "ContainerTreeRefinementItemTemplateLabel": "Árbol de contenedores",
                 "DateFromLabel": "De",
                 "DateTolabel": "Hasta",
                 "DatePickerStrings": {
@@ -65,13 +55,11 @@ define([], function() {
                     "PastYear": "Año pasado",
                     "Older": "Antigüedad superior a un año"
                 },
-                "RefinerSortTypeLabel": "Ordenar refinador por tipo",
-                "RefinerSortTypeAlphabetical": "Alfabéticamente",
-                "RefinerSortTypeByNumberOfResults": "Por número de resultados",
-                "RefinerSortTypeSortOrderLabel": "Criterio de ordenación",
-                "RefinerSortTypeSortDirectionAscending": "Ascendente",
-                "RefinerSortTypeSortDirectionDescending": "Descendente"
             }
         },
+        "Extensibility": {
+            "GroupName": "Extensibilidad de terceros",
+            "ButtonLabel": "Extensibilidad de carga"
+        }
     }
 });

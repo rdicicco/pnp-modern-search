@@ -60,6 +60,7 @@ define([], function() {
         "PanelCloseButtonAria": "Sluiten",
         "UseRefinersWebPartLabel": "Verbind met een zoekverfijningen webonderdeel",
         "UseRefinersFromComponentLabel": "Gebruik verfijningen van dit webonderdeel",
+        "UseSearchVerticalsLabel": "Connect to a search vertical Web Part",
         "UsePaginationFromComponentLabel": "Gebruik paginering van dit webonderdeel",
         "RefinementFilters": "Verfijningsfilters",
         "customTemplateFieldsLabel": "Aangepaste sjabloonveldwaarden",
@@ -83,6 +84,8 @@ define([], function() {
             "SortableFieldDisplayValueField": "Veldnaam om te tonen",
             "EditSortableFieldsLabel": "Bewerk sorteerbare velden",
             "EditSortLabel": "Bewerk sorteervolgorde",
+            "EditSortLabelFieldName": "Veldnaam",
+            "EditSortDirection": "Sorteerrichting",
             "SortInvalidSortableFieldMessage": "Deze eigenschap is niet sorteerbaar"
         },
         "Synonyms": {
@@ -108,6 +111,7 @@ define([], function() {
             "ConditionValueLabel": "Voorwaardelijke waarde",
             "CondtionOperatorValue": "Operator",
             "ExternalUrlLabel": "Externe Template Url",
+            "ExternalUrlPlaceholder": "https://mysite/Documents/external.html",
             "EqualOperator": "Is gelijk aan",
             "NotEqualOperator": "Niet gelijk",
             "ContainsOperator": "Bevat",
@@ -156,7 +160,6 @@ define([], function() {
             "PersonaSizeLarge": "Groot",
             "PersonaSizeExtraLarge": "Extra groot"
         },
-        "ManagedPropertiesListPlaceHolder": "Selecteer of voeg een beheerde eigenschap toe",
         "QueryModifier": {
             "FieldLbl": "Modificaties voor zoekopdrachten",
             "ConfigureBtn": "Configure",
@@ -176,6 +179,10 @@ define([], function() {
             "HideNavigationFieldName": "Hide navigation buttons (prev page, next page)",
             "HideFirstLastPagesFieldName": "Hide first/last navigation buttons",
             "HideDisabledFieldName": "Hide navigation buttons (prev, next, first, last) if they are disabled.",
+        },
+        "Extensibility": {
+            "GroupName": "Third Party Extensibility",
+            "ButtonLabel": "Load Extensibility"
         }
     }
 });

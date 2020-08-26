@@ -1,10 +1,8 @@
 import * as React from "react";
-import IBaseRefinerTemplateProps from '../IBaseRefinerTemplateProps';
-import IBaseRefinerTemplateState from '../IBaseRefinerTemplateState';
-import { IRefinementValue, RefinementOperator } from "../../../../../models/ISearchResult";
+import { IRefinerProps, IRefinerState, IRefinementValue, RefinementOperator } from "search-extensibility";
 import { IChoiceGroupOption, ChoiceGroup } from "office-ui-fabric-react/lib/ChoiceGroup";
 import { Guid } from '@microsoft/sp-core-library';
-import * as update from 'immutability-helper';
+import update from 'immutability-helper';
 import { Loader } from "../../../../../services/TemplateService/LoadHelper";
 import * as strings from 'SearchRefinersWebPartStrings';
 import { ITheme } from "@uifabric/styling";
@@ -12,13 +10,14 @@ import { find } from "@microsoft/sp-lodash-subset";
 
 //CSS
 import styles from './FixedDateRangeTemplate.module.scss';
+import { CssHelper } from "../../../../../helpers/CssHelper";
 
 
-export interface IFixedDateRangeTemplateState extends IBaseRefinerTemplateState {
+export interface IFixedDateRangeTemplateState extends IRefinerState {
     haveMoment: boolean;
 }
 
-export interface IFixedDateRangeTemplateProps extends IBaseRefinerTemplateProps {
+export interface IFixedDateRangeTemplateProps extends IRefinerProps {
     language: string;
 }
 
@@ -81,11 +80,11 @@ export default class FixedDateRangeTemplate extends React.Component<IFixedDateRa
 
     public render() {
         if (!this.state.haveMoment) return null;
-
+/*
         if (this.props.refinementResult.Values.length !== 6) {
             return <div>This template only works for Created, LastModifiedTime, LastModifiedTimeForRetention and RefinableDateXX properties</div>;
         }
-
+*/
         if (this.state.refinerSelectedFilterValues.length > 1) {
             return <div>This template only works when 1 refinement value is selected</div>;
         }
@@ -103,11 +102,13 @@ export default class FixedDateRangeTemplate extends React.Component<IFixedDateRa
         }
 
         // remove last option if no old docs
-        if (refinementResultValues[5].RefinementCount === 0) {
+        if (refinementResultValues[refinementResultValues.length-1].RefinementCount === 0) {
             options.pop();
         }
+        
+        const filterClassName = CssHelper.prefixAndValidateClassName("pnp-refiner-fixeddaterange", this.props.refinementResult.FilterName);
 
-        return <div className={styles.pnpRefinersTemplateFixedDateRange}>
+        return <div className={styles.pnpRefinersTemplateFixedDateRange + " " + filterClassName}>
             {
                 this.props.showValueFilter ?
                     <div className='pnp-font-s'>Value filters are not allowed for dates. Clear 'show filter' to remove this message</div>
@@ -151,7 +152,7 @@ export default class FixedDateRangeTemplate extends React.Component<IFixedDateRa
         });
     }
 
-    public UNSAFE_componentWillReceiveProps(nextProps: IBaseRefinerTemplateProps) {
+    public UNSAFE_componentWillReceiveProps(nextProps: IRefinerProps) {
 
         if (nextProps.shouldResetFilters) {
             this.setState({

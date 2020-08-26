@@ -1,4 +1,4 @@
-import { IRefinementResult, IPaginationInformation, ISearchVerticalInformation, IRefinementFilter } from "./ISearchResult";
+import { IRefinementResult, IPaginationInformation, ISearchVerticalInformation, IRefinementFilter } from "search-extensibility";
 import { ISearchServiceConfiguration } from "./ISearchServiceConfiguration";
 
 /**
@@ -34,6 +34,11 @@ interface ISearchResultSourceData {
      * The search verticals information
      */
     verticalsInformation: ISearchVerticalInformation[];
+
+    /**
+     * Reset filter based on vertical switch
+     */
+    filterReset: boolean;
 }
 
 export default ISearchResultSourceData;

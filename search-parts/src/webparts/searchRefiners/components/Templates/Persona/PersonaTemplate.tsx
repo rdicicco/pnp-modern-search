@@ -7,19 +7,18 @@ import styles from './PersonaTemplate.module.scss';
 import { ITheme } from '@uifabric/styling';
 
 // Thirs party Lib
-import * as update from 'immutability-helper';
+import update from 'immutability-helper';
 
 // Interface
-import { IRefinementValue, RefinementOperator } from "../../../../../models/ISearchResult";
-import IBaseRefinerTemplateProps from '../IBaseRefinerTemplateProps';
-import IBaseRefinerTemplateState from '../IBaseRefinerTemplateState';
+import { IRefinerProps, IRefinerState, IRefinementValue, RefinementOperator } from "search-extensibility";
 import { PersonaSize, Persona, Spinner, SpinnerSize, IExtendedPersonaProps, IPersonaProps, TextField, Link } from "office-ui-fabric-react";
 import { IUserInfo } from "../../../../../models/IUser";
+import { CssHelper } from '../../../../../helpers/CssHelper';
 
-export interface IPersonaTemplateProps extends IBaseRefinerTemplateProps {
+export interface IPersonaTemplateProps extends IRefinerProps {
 }
 
-export interface IPersonaTemplateState extends IBaseRefinerTemplateState {
+export interface IPersonaTemplateState extends IRefinerState {
   isLoading: boolean;
   userInfos: IUserInfo[];
 }
@@ -46,11 +45,13 @@ export default class PersonaTemplate extends React.Component<IPersonaTemplatePro
   public render() {
 
     let renderTemplate: JSX.Element = null;
+    
+    const filterClassName = CssHelper.prefixAndValidateClassName("pnp-refiner-persona", this.props.refinementResult.FilterName);
 
     if (this.state.isLoading) {
       renderTemplate = <Spinner size={SpinnerSize.small}/>;
     } else {
-      renderTemplate =  <div>
+      renderTemplate =  <div className={filterClassName}>
                           {
                             this.props.refinementResult.Values.filter(x => { return !this._isFilterMatch(x);}).map((refinementValue: IRefinementValue, j) => {
 
@@ -81,11 +82,12 @@ export default class PersonaTemplate extends React.Component<IPersonaTemplatePro
                               if (refinementValue.RefinementCount === 0) {
                                 return null;
                               }
+
                               return (
                                 <Persona
                                   {...imageProps}
                                   key={j}
-                                  className='pnp-persona'
+                                  className={'pnp-persona pnp-refiner-persona ' + CssHelper.prefixAndValidateClassName("pnp-ref-" + refinementValue.RefinementName, displayName)}
                                   styles={{
                                     root: {
                                       marginBottom: 10

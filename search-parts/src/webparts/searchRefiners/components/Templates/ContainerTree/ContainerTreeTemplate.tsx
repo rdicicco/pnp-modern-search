@@ -1,16 +1,15 @@
 import * as React from 'react';
-import IBaseRefinerTemplateProps from '../IBaseRefinerTemplateProps';
-import IBaseRefinerTemplateState from '../IBaseRefinerTemplateState';
-import { IRefinementValue, RefinementOperator } from "../../../../../models/ISearchResult";
-import * as update from 'immutability-helper';
+import { IRefinerProps, IRefinerState, IRefinementValue, RefinementOperator } from "search-extensibility";
+import update from 'immutability-helper';
 import { INavLink, Nav, Icon, ITheme } from 'office-ui-fabric-react';
 import { cloneDeep, find } from "@microsoft/sp-lodash-subset";
 import { UrlHelper } from '../../../../../helpers/UrlHelper';
+import { CssHelper } from '../../../../../helpers/CssHelper';
 
 //CSS
 import styles from './ContainerTreeTemplate.module.scss';
 
-export interface IFoldersTemplateProps extends IBaseRefinerTemplateProps {
+export interface IFoldersTemplateProps extends IRefinerProps {
 
     /**
      * Flag indicating if the associated refiner should be displayed as expanded
@@ -18,7 +17,7 @@ export interface IFoldersTemplateProps extends IBaseRefinerTemplateProps {
     showExpanded: boolean;
 }
 
-export interface IFoldersTemplateState extends IBaseRefinerTemplateState {
+export interface IFoldersTemplateState extends IRefinerState {
 
     /**
      * The navigation links to display
@@ -39,7 +38,9 @@ export default class ContainerTreeTemplate extends React.Component<IFoldersTempl
 
     public render() {
 
-        return  <div className={styles.pnpRefinersTemplateContainerTree}>
+        const filterClassName = CssHelper.prefixAndValidateClassName("pnp-refiner-tree", this.props.refinementResult.FilterName);
+
+        return  <div className={styles.pnpRefinersTemplateContainerTree + " " + filterClassName}>
                 {
                     this.props.showValueFilter ? 
                         <div className='pnp-font-s'>Value filters are not allowed for container trees. Clear 'show filter' to remove this message</div>
@@ -52,7 +53,7 @@ export default class ContainerTreeTemplate extends React.Component<IFoldersTempl
                         const isSelected = props.refinementValue && this._isValueInFilterSelection(props.refinementValue);
                         return  <div style={{
                                         fontWeight: isSelected ? 'bold' : 'inherit'
-                                    }}>
+                                    }} className={"pnp-refiner-tree " + CssHelper.prefixAndValidateClassName("pnp-ref-" + props.RefinementName, props.RefinementValue)}>
                                     {
                                         defautRender(cloneDeep(props))
                                     }
@@ -184,7 +185,7 @@ export default class ContainerTreeTemplate extends React.Component<IFoldersTempl
         this.buildContainerStructureFromFilterValues(this.props.refinementResult.Values);
     }
 
-    public async UNSAFE_componentWillReceiveProps(nextProps: IBaseRefinerTemplateProps) {
+    public async UNSAFE_componentWillReceiveProps(nextProps: IRefinerProps) {
 
         if (nextProps.shouldResetFilters) {
             this.setState({

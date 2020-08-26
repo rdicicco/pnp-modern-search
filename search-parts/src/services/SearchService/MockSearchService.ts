@@ -1,12 +1,12 @@
 import ISearchService from './ISearchService';
-import { ISearchResults, IRefinementFilter, ISearchResult, ISearchVerticalInformation } from '../../models/ISearchResult';
+import { ISearchResults, ITimeZoneBias, ISearchResult, ISearchVerticalInformation } from 'search-extensibility';
 import { intersection, clone } from '@microsoft/sp-lodash-subset';
-import IRefinerConfiguration from '../../models/IRefinerConfiguration';
 import { Sort } from '@pnp/sp';
 import { ISearchServiceConfiguration } from '../../models/ISearchServiceConfiguration';
 import ISearchVerticalSourceData from '../../models/ISearchVerticalSourceData';
 import { ISearchVertical } from '../../models/ISearchVertical';
-import IManagedPropertyInfo from '../../models/IManagedPropertyInfo';
+import { IManagedPropertyInfo, IRefinerConfiguration } from 'search-extensibility';
+import { ISharePointSearch } from './ISharePointSearch';
 
 class MockSearchService implements ISearchService {
 
@@ -20,6 +20,9 @@ class MockSearchService implements ISearchService {
   private _refiners: IRefinerConfiguration[];
   private _refinementFilters: string[];
   private _queryCulture: number;
+  
+  public timeZoneId: number;
+  public synonymTable?: { [key: string]: string[]; };
 
   public get resultsCount(): number { return this._resultsCount; }
   public set resultsCount(value: number) { this._resultsCount = value; }
@@ -241,8 +244,9 @@ class MockSearchService implements ISearchService {
       "human resources procedures"
     ];
   }
+   
 
-  public search(query: string, pageNumber?: number): Promise<ISearchResults> {
+  private _search(query: string, pageNumber?: number, useOldSPIcons?: boolean): Promise<ISearchResults> {
 
     const p1 = new Promise<ISearchResults>((resolve) => {
 
@@ -278,6 +282,10 @@ class MockSearchService implements ISearchService {
     });
 
     return p1;
+  }
+
+  public search(query: string, params: ISharePointSearch) : Promise<ISearchResults> {
+    return this._search(query, params.pageNumber, params.useOldSPIcons);
   }
 
   private _paginate(array, pageSize: number, pageNumber: number) {
@@ -326,7 +334,8 @@ class MockSearchService implements ISearchService {
       resultsCount: this.resultsCount,
       selectedProperties: this.selectedProperties,
       sortList: this.sortList,
-      queryCulture: this.queryCulture
+      queryCulture: this.queryCulture,
+      timeZoneId: null
     };
   }
 

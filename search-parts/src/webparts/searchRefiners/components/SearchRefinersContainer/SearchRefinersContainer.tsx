@@ -5,260 +5,364 @@ import { DisplayMode } from '@microsoft/sp-core-library';
 import { WebPartTitle } from "@pnp/spfx-controls-react/lib/WebPartTitle";
 import Vertical from '../Layouts/Vertical/Vertical';
 import LinkPanel from '../Layouts/LinkPanel/LinkPanel';
-import RefinersLayoutOption from '../../../../models/RefinersLayoutOptions';
 import { MessageBarType, MessageBar } from 'office-ui-fabric-react/lib/MessageBar';
 import * as strings from 'SearchRefinersWebPartStrings';
 import { ISearchRefinersContainerState } from './ISearchRefinersContainerState';
-import { IRefinementFilter, IRefinementValue, RefinementOperator } from '../../../../models/ISearchResult';
-import * as update from 'immutability-helper';
-import RefinerTemplateOption from '../../../../models/RefinerTemplateOption';
+import { RefinerSortDirection, RefinersSortOption, RefinerTemplateOption, RefinersLayoutOption, IRefinementFilter, IRefinementValue, RefinementOperator } from 'search-extensibility';
+import update from 'immutability-helper';
 import { find, isEqual } from '@microsoft/sp-lodash-subset';
-import RefinersSortOption from '../../../../models/RefinersSortOptions';
-import RefinerSortDirection from '../../../../models/RefinersSortDirection';
 import { IReadonlyTheme } from '@microsoft/sp-component-base';
 
 export default class SearchRefinersContainer extends React.Component<ISearchRefinersContainerProps, ISearchRefinersContainerState> {
+  
+    private __eventAddFilter = null;
+    private __eventRemoveFilter = null;
+    private __eventRemoveAllFilters = null;
 
-  public constructor(props: ISearchRefinersContainerProps) {
-    super(props);
+    public constructor(props: ISearchRefinersContainerProps) {
+        super(props);
 
-    this.state = {
-      shouldResetFilters: false,
-      selectedRefinementFilters: [],
-      availableRefiners: []
-    };
+        this.state = {
+            shouldResetFilters: false,
+            selectedRefinementFilters: [],
+            availableRefiners: []
+        };
 
-    this.onFilterValuesUpdated = this.onFilterValuesUpdated.bind(this);
-    this.onRemoveAllFilters = this.onRemoveAllFilters.bind(this);
-  }
+        this.onFilterValuesUpdated = this.onFilterValuesUpdated.bind(this);
+        this.onRemoveAllFilters = this.onRemoveAllFilters.bind(this);
 
-  public render(): React.ReactElement<ISearchRefinersContainerProps> {
-    let renderWpContent: JSX.Element = null;
-    let renderWebPartTitle: JSX.Element = null;
-
-    const { semanticColors }: IReadonlyTheme = this.props.themeVariant;
-
-    if (this.props.webPartTitle && this.props.webPartTitle.length > 0) {
-      renderWebPartTitle = <WebPartTitle title={this.props.webPartTitle} updateProperty={null} displayMode={DisplayMode.Read} themeVariant={this.props.themeVariant} />;
+        this.__eventAddFilter = this._eventAddFilter.bind(this);
+        this.__eventRemoveFilter = this._eventRemoveFilter.bind(this);
+        this.__eventRemoveAllFilters = this._eventRemoveAllFilters.bind(this);
     }
 
-    if (this.state.availableRefiners.length === 0) {
+    public render(): React.ReactElement<ISearchRefinersContainerProps> {
+        let renderWpContent: JSX.Element = null;
+        let renderWebPartTitle: JSX.Element = null;
 
-      if (this.props.displayMode === DisplayMode.Edit && this.props.showBlank) {
-        renderWpContent = <MessageBar messageBarType={MessageBarType.info}>{strings.ShowBlankEditInfoMessage}</MessageBar>;
-      } else if (!this.props.showBlank) {
-        renderWpContent = <div className={styles.searchRefiners__noFilter}>
-          {strings.NoFilterConfiguredLabel}
-        </div>;
-      }
+        const { semanticColors }: IReadonlyTheme = this.props.themeVariant;
 
-    } else {
+        if (this.props.webPartTitle && this.props.webPartTitle.length > 0) {
+            renderWebPartTitle = <WebPartTitle title={this.props.webPartTitle} updateProperty={null} displayMode={DisplayMode.Read} themeVariant={this.props.themeVariant} />;
+        }
 
-      // Choose the right layout according to the Web Part option
-      switch (this.props.selectedLayout) {
-        case RefinersLayoutOption.Vertical:
-          renderWpContent = <Vertical
-            onFilterValuesUpdated={this.onFilterValuesUpdated}
-            refinementResults={this.state.availableRefiners}
-            refinersConfiguration={this.props.refinersConfiguration}
-            shouldResetFilters={this.state.shouldResetFilters}
-            onRemoveAllFilters={this.onRemoveAllFilters}
-            hasSelectedValues={this.state.selectedRefinementFilters.length > 0 ? true : false}
-            language={this.props.language}
-            themeVariant={this.props.themeVariant}
-            selectedFilters={this.state.selectedRefinementFilters}
-            userService={this.props.userService}
-          />;
-          break;
+        if (this.state.availableRefiners.length === 0) {
 
-        case RefinersLayoutOption.LinkAndPanel:
+            if (this.props.displayMode === DisplayMode.Edit && this.props.showBlank) {
+                renderWpContent = <MessageBar messageBarType={MessageBarType.info}>{strings.ShowBlankEditInfoMessage}</MessageBar>;
+            } else if (!this.props.showBlank) {
+                renderWpContent = <div className={styles.searchRefiners__noFilter}>
+                    {strings.NoFilterConfiguredLabel}
+                </div>;
+            }
 
-          // Flatten all selected values
-          let selectedValues = [];
-          this.state.selectedRefinementFilters.map(refinement => {
-            selectedValues = selectedValues.concat(refinement.Values);
-          });
+        } else {
 
-          renderWpContent = <LinkPanel
-            onFilterValuesUpdated={this.onFilterValuesUpdated}
-            refinementResults={this.state.availableRefiners}
-            refinersConfiguration={this.props.refinersConfiguration}
-            shouldResetFilters={this.state.shouldResetFilters}
-            onRemoveAllFilters={this.onRemoveAllFilters}
-            hasSelectedValues={this.state.selectedRefinementFilters.length > 0 ? true : false}
-            selectedFilterValues={selectedValues}
-            language={this.props.language}
-            themeVariant={this.props.themeVariant}
-            selectedFilters={this.state.selectedRefinementFilters}
-            userService={this.props.userService}
-          />;
-          break;
-      }
+            // Choose the right layout according to the Web Part option
+            switch (this.props.selectedLayout) {
+                case RefinersLayoutOption.Vertical:
+                    renderWpContent = <Vertical
+                        onFilterValuesUpdated={this.onFilterValuesUpdated}
+                        refinementResults={this.state.availableRefiners}
+                        refinersConfiguration={this.props.refinersConfiguration}
+                        shouldResetFilters={this.state.shouldResetFilters}
+                        onRemoveAllFilters={this.onRemoveAllFilters}
+                        hasSelectedValues={this.state.selectedRefinementFilters.length > 0 ? true : false}
+                        language={this.props.language}
+                        themeVariant={this.props.themeVariant}
+                        selectedFilters={this.state.selectedRefinementFilters}
+                        userService={this.props.userService}
+                        templateService={this.props.templateService}
+                        contentClassName={this.props.contentClassName}
+                        instanceId={this.props.instanceId}
+                        webUrl={this.props.webUrl}
+                        siteUrl={this.props.siteUrl}
+                    />;
+                    break;
+
+                case RefinersLayoutOption.LinkAndPanel:
+
+                    // Flatten all selected values
+                    let selectedValues = [];
+                    this.state.selectedRefinementFilters.map(refinement => {
+                        selectedValues = selectedValues.concat(refinement.Values);
+                    });
+
+                    renderWpContent = <LinkPanel
+                        onFilterValuesUpdated={this.onFilterValuesUpdated}
+                        refinementResults={this.state.availableRefiners}
+                        refinersConfiguration={this.props.refinersConfiguration}
+                        shouldResetFilters={this.state.shouldResetFilters}
+                        onRemoveAllFilters={this.onRemoveAllFilters}
+                        hasSelectedValues={this.state.selectedRefinementFilters.length > 0 ? true : false}
+                        selectedFilterValues={selectedValues}
+                        language={this.props.language}
+                        themeVariant={this.props.themeVariant}
+                        selectedFilters={this.state.selectedRefinementFilters}
+                        userService={this.props.userService}
+                        templateService={this.props.templateService}
+                        contentClassName={this.props.contentClassName}
+                        instanceId={this.props.instanceId}
+                        webUrl={this.props.webUrl}
+                        siteUrl={this.props.siteUrl}
+                    />;
+                    break;
+            }
+        }
+
+        return (
+            <div style={{ backgroundColor: semanticColors.bodyBackground }}>
+                <div style={{display:"none"}} dangerouslySetInnerHTML={{__html: this.props.styles}}></div>
+                <div className={styles.searchRefiners}>
+                    {renderWebPartTitle}
+                    {renderWpContent}
+                </div>
+            </div>
+        );
     }
 
-    return (
-      <div style={{ backgroundColor: semanticColors.bodyBackground }}>
-        <div className={styles.searchRefiners}>
-          {renderWebPartTitle}
-          {renderWpContent}
-        </div>
-      </div>
-    );
-  }
-
-  public UNSAFE_componentWillReceiveProps(nextProps: ISearchRefinersContainerProps) {
-
-    if (nextProps.query !== this.props.query || !isEqual(this.props.themeVariant, nextProps.themeVariant)) {
-
-      this.setState({
-        shouldResetFilters: true,
-        selectedRefinementFilters: []
-      });
-
-    } else {
-
-      // Reset the flag every time we receive new refinement results
-      this.setState({
-        shouldResetFilters: false
-      });
+    public componentWillUnmount() {
+        this.unbindFilterEvents();
     }
 
-    if (!isEqual(this.props.defaultSelectedRefinementFilters, nextProps.defaultSelectedRefinementFilters) && nextProps.defaultSelectedRefinementFilters.length > 0) {
-      this.setState({
-        selectedRefinementFilters: nextProps.defaultSelectedRefinementFilters
-      });
-    }
+    public UNSAFE_componentWillReceiveProps(nextProps: ISearchRefinersContainerProps) {
 
-    let availableFilters = nextProps.availableRefiners;
+        if (nextProps.query !== this.props.query || !isEqual(this.props.themeVariant, nextProps.themeVariant)) {
 
-    nextProps.availableRefiners.forEach((refinementResult, index) => {
+            this.setState({
+                shouldResetFilters: true,
+                selectedRefinementFilters: []
+            });
 
-      // get the configuration for this refiner
-      let refinerConfig = find(nextProps.refinersConfiguration, refiner => refiner.refinerName === refinementResult.FilterName);
+        } else {
 
-      // if the Sort Option is Alphabetical, reorder the values
-      if (refinerConfig && refinerConfig.refinerSortType === RefinersSortOption.Alphabetical) {
-        let sortedValues = refinementResult.Values.sort((a, b) => {
-          let textA = a.RefinementValue.toLocaleUpperCase();
-          let textB = b.RefinementValue.toLocaleUpperCase();
-          return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+            // Reset the flag every time we receive new refinement results
+            this.setState({
+                shouldResetFilters: false
+            });
+        }
+
+        if (!isEqual(this.props.defaultSelectedRefinementFilters, nextProps.defaultSelectedRefinementFilters) && nextProps.defaultSelectedRefinementFilters.length > 0) {
+            this.setState({
+                selectedRefinementFilters: nextProps.defaultSelectedRefinementFilters
+            });
+        }
+
+        let availableFilters = nextProps.availableRefiners;
+
+        nextProps.availableRefiners.forEach((refinementResult, index) => {
+
+            // get the configuration for this refiner
+            let refinerConfig = find(nextProps.refinersConfiguration, refiner => refiner.refinerName === refinementResult.FilterName);
+
+            // if the Sort Option is Alphabetical, reorder the values
+            if (refinerConfig && refinerConfig.refinerSortType === RefinersSortOption.Alphabetical) {
+                let sortedValues = refinementResult.Values.sort((a, b) => {
+                    let textA = a.RefinementValue.toLocaleUpperCase();
+                    let textB = b.RefinementValue.toLocaleUpperCase();
+                    return textA.localeCompare(textB, this.props.language); 
+                });
+                availableFilters[index].Values = sortedValues;
+            }
+            else if (refinerConfig && refinerConfig.refinerSortType === RefinersSortOption.ByNumberOfResults) {
+                let sortedValues = refinementResult.Values.sort((a, b) => {
+                    let textA = a.RefinementValue.toLocaleUpperCase();
+                    let textB = b.RefinementValue.toLocaleUpperCase();
+                    return (a.RefinementCount < b.RefinementCount) ? -1 : (a.RefinementCount > b.RefinementCount) ? 1 : (
+                        // on same number, alphabetically
+                        textA.localeCompare(textB, this.props.language)
+                    );
+                });
+                availableFilters[index].Values = sortedValues;
+            }
+
+            if (refinerConfig && refinerConfig.refinerSortType !== RefinersSortOption.Default && refinerConfig.refinerSortDirection == RefinerSortDirection.Descending) {
+                refinementResult.Values = refinementResult.Values.reverse();
+            }
         });
-        availableFilters[index].Values = sortedValues;
-      }
-      else if (refinerConfig && refinerConfig.refinerSortType === RefinersSortOption.ByNumberOfResults) {
-        let sortedValues = refinementResult.Values.sort((a, b) => {
-          let textA = a.RefinementValue.toLocaleUpperCase();
-          let textB = b.RefinementValue.toLocaleUpperCase();
-          return (a.RefinementCount < b.RefinementCount) ? -1 : (a.RefinementCount > b.RefinementCount) ? 1 : (
-            // on same number, alphabetically
-            (textA < textB) ? -1 : (textA > textB) ? 1 : 0
-          );
+
+        // If a filter of type DateTime is currently selected but is not present in the new received refinement results, we add it as a result manually to be able to reset it
+        const dateFilters = nextProps.refinersConfiguration.filter(refiner => {
+            return refiner.template === RefinerTemplateOption.DateRange;
         });
-        availableFilters[index].Values = sortedValues;
-      }
 
-      if (refinerConfig && refinerConfig.refinerSortType !== RefinersSortOption.Default && refinerConfig.refinerSortDirection == RefinerSortDirection.Descending) {
-        refinementResult.Values = refinementResult.Values.reverse();
-      }
-    });
+        dateFilters.map(dateFilter => {
 
-    // If a filter of type DateTime is currently selected but is not present in the new received refinement results, we add it as a result manually to be able to reset it
-    const dateFilters = nextProps.refinersConfiguration.filter(refiner => {
-      return refiner.template === RefinerTemplateOption.DateRange;
-    });
+            // Is the filter currently selected?
+            const isSelected = this.state.selectedRefinementFilters.filter(filter => { return filter.FilterName === dateFilter.refinerName; }).length > 0 ? true : false;
 
-    dateFilters.map(dateFilter => {
+            // If selected but there is no more result for this refiner, we manually add a dummy entry to available filters
+            if (isSelected && nextProps.availableRefiners.filter(availableRefiner => { return availableRefiner.FilterName === dateFilter.refinerName; }).length === 0) {
 
-      // Is the filter currently selected?
-      const isSelected = this.state.selectedRefinementFilters.filter(filter => { return filter.FilterName === dateFilter.refinerName; }).length > 0 ? true : false;
+                // Simply revert to previous filters to be able to reset filters combination
+                availableFilters = update(nextProps.availableRefiners, { $set: this.props.availableRefiners.length > 0 ? this.props.availableRefiners : this.state.availableRefiners });
 
-      // If selected but there is no more result for this refiner, we manually add a dummy entry to available filters
-      if (isSelected && nextProps.availableRefiners.filter(availableRefiner => { return availableRefiner.FilterName === dateFilter.refinerName; }).length === 0) {
+                // Reset all refinement counts
+                availableFilters = availableFilters.map(filter => {
 
-        // Simply revert to previous filters to be able to reset filters combination
-        availableFilters = update(nextProps.availableRefiners, { $set: this.props.availableRefiners.length > 0 ? this.props.availableRefiners : this.state.availableRefiners });
+                    const values = filter.Values.map(value => {
+                        value.RefinementCount = 0;
+                        return value;
+                    });
 
-        // Reset all refinement counts
-        availableFilters = availableFilters.map(filter => {
-
-          const values = filter.Values.map(value => {
-            value.RefinementCount = 0;
-            return value;
-          });
-
-          filter.Values = values;
-          return filter;
+                    filter.Values = values;
+                    return filter;
+                });
+            }
         });
-      }
-    });
 
-    this.setState({
-      availableRefiners: availableFilters
-    });
-  }
+        this.bindFilterEvents();
 
-  public componentDidMount() {
-    this.setState({
-      availableRefiners: this.props.availableRefiners
-    });
-  }
+        this.setState({
+            availableRefiners: availableFilters
+        });
 
-  /**
-   * Update the filter status in the state according to values
-   * @param filterName the filter to update
-   * @param filterValues the filter values
-   * @param operator the operator (FQL) (i.e AND/OR)
-   */
-  private onFilterValuesUpdated(filterName: string, filterValues: IRefinementValue[], operator: RefinementOperator) {
-
-    let newFilters = [];
-
-    const refinementFilter: IRefinementFilter = {
-      FilterName: filterName,
-      Values: filterValues,
-      Operator: operator
-    };
-
-    // Get the index of the filter in the current selected filters collection
-    const filterIdx = this.state.selectedRefinementFilters.map(selected => { return selected.FilterName; }).indexOf(filterName);
-
-    if (filterIdx !== -1) {
-
-      if (filterValues.length > 0) {
-        // Update value for the specific filters
-        newFilters = update(this.state.selectedRefinementFilters, { [filterIdx]: { $set: refinementFilter } });
-      } else {
-        // If no values, we remove the filter
-        newFilters = update(this.state.selectedRefinementFilters, { $splice: [[filterIdx, 1]] });
-      }
-
-    } else {
-
-      if (filterValues.length > 0) {
-        // If does not exist, add to selected filters collection
-        newFilters = update(this.state.selectedRefinementFilters, { $push: [refinementFilter] });
-      }
     }
 
-    // Very important to reset the 'reset' flag after an udpdate
-    this.setState({
-      selectedRefinementFilters: newFilters,
-      shouldResetFilters: false
-    });
+    public componentDidMount() {
+        this.setState({
+            availableRefiners: this.props.availableRefiners
+        });
+    }
 
-    this.props.onUpdateFilters(newFilters);
-  }
+    private _eventRemoveFilter(ev:CustomEvent) : void {
 
-  /**
-   * Removes all selected filter values for all refiners
-   */
-  private onRemoveAllFilters() {
+        ev.stopImmediatePropagation();
+        
+        console.log("Remove filter event.");
 
-    this.setState({
-      selectedRefinementFilters: [],
-      shouldResetFilters: true
-    });
+        const newValues: IRefinementValue[] = [];
+        const refiner: IRefinementValue = ev.detail.refiner; 
 
-    this.props.onUpdateFilters([]);
-  }
+        if(this.state.selectedRefinementFilters.some((filter)=>{
+            if(filter.FilterName === refiner.RefinementName) {        
+                filter.Values.map((filterValue)=>{
+                    if(filterValue.RefinementValue !== refiner.RefinementValue) {
+                        newValues.push(filterValue);
+                    }
+                });
+                return true;
+            }
+        })) {
+
+            this.onFilterValuesUpdated(ev.detail.FilterName, newValues, ev.detail.operator);
+
+        }
+
+    }
+
+    private _eventAddFilter(ev:CustomEvent) : void {
+        
+        ev.stopImmediatePropagation();
+        
+        console.log("Add filter value event");
+
+        const newValues: IRefinementValue[] = [ ];
+        const refiner: IRefinementValue = ev.detail.refiner; 
+        const selected : IRefinementFilter = this.state.selectedRefinementFilters.filter((f)=> f.FilterName == refiner.RefinementName)[0];
+        const alreadySelected : boolean = selected
+                    ? selected.Values.some((f)=> f.RefinementValue === refiner.RefinementValue)
+                    : false;
+        const filterConfig = this.props.refinersConfiguration.filter((f)=> f.refinerName === refiner.RefinementName)[0];
+
+        if(!alreadySelected) {
+            
+            newValues.push(refiner);
+
+            this.onFilterValuesUpdated(refiner.RefinementName, newValues, ev.detail.operator);
+        
+        }
+
+    }
+
+    private _eventRemoveAllFilters(ev:CustomEvent) : void {
+
+        ev.stopImmediatePropagation();
+
+        console.log("Remove all filters event");
+
+        this.onRemoveAllFilters();
+
+    }
+
+    /**
+     * Binds events fired by custom templates
+     */
+    private bindFilterEvents() {
+
+        window.addEventListener('removeFilter', this.__eventRemoveFilter);
+        window.addEventListener('addFilter', this.__eventAddFilter);
+        window.addEventListener('removeAllFilters', this.__eventRemoveAllFilters);
+
+    }
+
+    /*
+    * Unbinds events fired by custom templates
+    */
+    private unbindFilterEvents() {
+
+        window.removeEventListener('removeFilter', this.__eventRemoveFilter);
+        window.removeEventListener('addFilter', this.__eventAddFilter);
+        window.removeEventListener('removeAllFilters', this.__eventRemoveAllFilters);
+
+    }
+
+    /**
+     * Update the filter status in the state according to values
+     * @param filterName the filter to update
+     * @param filterValues the filter values
+     * @param operator the operator (FQL) (i.e AND/OR)
+     */
+    private onFilterValuesUpdated(filterName: string, filterValues: IRefinementValue[], operator: RefinementOperator) {
+
+        let newFilters = [];
+
+        const refinementFilter: IRefinementFilter = {
+            FilterName: filterName,
+            Values: filterValues,
+            Operator: operator
+        };
+
+        // Get the index of the filter in the current selected filters collection
+        const filterIdx = this.state.selectedRefinementFilters.map(selected => { return selected.FilterName; }).indexOf(filterName);
+
+        if (filterIdx !== -1) {
+
+            if (filterValues.length > 0) {
+                // Update value for the specific filters
+                newFilters = update(this.state.selectedRefinementFilters, { [filterIdx]: { $set: refinementFilter } });
+            } else {
+                // If no values, we remove the filter
+                newFilters = update(this.state.selectedRefinementFilters, { $splice: [[filterIdx, 1]] });
+            }
+
+        } else {
+
+            if (filterValues.length > 0) {
+                // If does not exist, add to selected filters collection
+                newFilters = update(this.state.selectedRefinementFilters, { $push: [refinementFilter] });
+            }
+        }
+
+        // Very important to reset the 'reset' flag after an udpdate
+        this.setState({
+            selectedRefinementFilters: newFilters,
+            shouldResetFilters: false
+        });
+
+        this.props.onUpdateFilters(newFilters);
+    }
+
+    /**
+     * Removes all selected filter values for all refiners
+     */
+    private onRemoveAllFilters() {
+
+        this.setState({
+            selectedRefinementFilters: [],
+            shouldResetFilters: true
+        });
+
+        this.props.onUpdateFilters([]);
+    }
 }

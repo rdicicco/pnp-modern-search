@@ -17,23 +17,23 @@ import { getFileTypeIconProps } from '@uifabric/file-type-icons';
 import { ITheme } from '@uifabric/styling';
 
 // Third party lib
-import * as update from 'immutability-helper';
+import update from 'immutability-helper';
 
 // Helper
 import { FileHelper } from './../../../../../helpers/FileHelper';
 
 // Interface
-import { IRefinementValue, RefinementOperator } from '../../../../../models/ISearchResult';
-import IBaseRefinerTemplateProps from '../IBaseRefinerTemplateProps';
-import IBaseRefinerTemplateState from '../IBaseRefinerTemplateState';
+import { IRefinerProps, IRefinerState, IRefinementValue, RefinementOperator } from 'search-extensibility';
 import { TextField } from 'office-ui-fabric-react';
+import { CssHelper } from '../../../../../helpers/CssHelper';
+
 
 // Class
-export default class FileTypeTemplate extends React.Component<IBaseRefinerTemplateProps, IBaseRefinerTemplateState> {
+export default class FileTypeTemplate extends React.Component<IRefinerProps, IRefinerState> {
 
   private _operator: RefinementOperator;
 
-  public constructor(props: IBaseRefinerTemplateProps) {
+  public constructor(props: IRefinerProps) {
     super(props);
 
     this.state = {
@@ -51,9 +51,11 @@ export default class FileTypeTemplate extends React.Component<IBaseRefinerTempla
     if (this.props.selectedValues.length === 0 && this.state.refinerSelectedFilterValues.length === 0) {
         disableButtons = true;
     }
+    
+    const filterClassName = CssHelper.prefixAndValidateClassName("pnp-refiner-filetype", this.props.refinementResult.FilterName);
 
     return (
-      <div className={styles.pnpRefinersTemplateFileType}>
+      <div className={styles.pnpRefinersTemplateFileType + " " + filterClassName}>
         {
             this.props.showValueFilter ?
                 <div className="pnp-value-filter-container">
@@ -79,6 +81,7 @@ export default class FileTypeTemplate extends React.Component<IBaseRefinerTempla
                   }
                 }}
                 key={j}
+                className={"pnp-refiner-filetype " + CssHelper.prefixAndValidateClassName("pnp-ref-" + refinementValue.RefinementName, refinementValue.RefinementValue)}
                 checked={this._isValueInFilterSelection(refinementValue)}
                 disabled={this.state.refinerSelectedFilterValues.length > 0 && !this._isValueInFilterSelection(refinementValue) && !this.props.isMultiValue}
                 onChange={(ev, checked: boolean) => {
@@ -126,7 +129,7 @@ export default class FileTypeTemplate extends React.Component<IBaseRefinerTempla
     });
   }
 
-  public UNSAFE_componentWillReceiveProps(nextProps: IBaseRefinerTemplateProps) {
+  public UNSAFE_componentWillReceiveProps(nextProps: IRefinerProps) {
 
     if (nextProps.shouldResetFilters) {
       this.setState({

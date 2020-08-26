@@ -18,28 +18,18 @@ declare interface ISearchRefinersWebPartStrings {
     FilterResultsButtonLabel: string;
     RefinerLayoutLabel: string;
     ConnectToSearchResultsLabel: string;
+    DialogButtonLabel: string;
     Refiners: {
         RefinersFieldLabel: string;
         RefinersFieldDescription: string;
         RefinerManagedPropertyField: string;
-        RefinerDisplayValueField: string;
-        RefinerTemplateField: string;
         EditRefinersLabel: string;
         EditSortLabel: string;
-        AvailableRefinersLabel: string;
         ApplyFiltersLabel: string;
         ClearFiltersLabel: string;
         ShowExpanded: string;
         showValueFilter: string;
         Templates: {
-            RefinementItemTemplateLabel: string;
-            MutliValueRefinementItemTemplateLabel: string;
-            DateRangeRefinementItemLabel: string;
-            FixedDateRangeRefinementItemLabel: string;
-            PersonaRefinementItemLabel: string;
-            FileTypeRefinementItemTemplateLabel: string;
-            FileTypeMutliValueRefinementItemTemplateLabel: string;
-            ContainerTreeRefinementItemTemplateLabel: string;
             DateFromLabel: string;
             DateTolabel: string;
             DatePickerStrings: {
@@ -65,14 +55,16 @@ declare interface ISearchRefinersWebPartStrings {
                 PastYear: string;
                 Older: string;
             },
-            RefinerSortTypeLabel: string,
-            RefinerSortTypeAlphabetical: string,
-            RefinerSortTypeByNumberOfResults: string,
-            RefinerSortTypeSortOrderLabel: string,
-            RefinerSortTypeSortDirectionAscending: string,
-            RefinerSortTypeSortDirectionDescending: string
+            Custom: {
+                ItemTemplateLabel: string;
+                EditLabel: string;
+            },
         }
     },
+    Extensibility: {
+        ButtonLabel: string;
+        GroupName: string;
+    }
 }
 
 declare module 'SearchRefinersWebPartStrings' {
