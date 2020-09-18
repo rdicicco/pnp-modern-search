@@ -35,6 +35,8 @@ import { isEqual, find } from '@microsoft/sp-lodash-subset';
 import { GlobalSettings } from 'office-ui-fabric-react';
 import { Guid } from '@microsoft/sp-core-library';
 import PnPTelemetry from "@pnp/telemetry-js";
+import { LogLevel } from '@pnp/logging';
+import Logger from '../../services/LogService/LogService';
 
 export default class SearchBoxWebPart extends BaseClientSideWebPart<ISearchBoxWebPartProps> implements IDynamicDataCallables {
 
@@ -172,7 +174,7 @@ export default class SearchBoxWebPart extends BaseClientSideWebPart<ISearchBoxWe
 
         // Disable PnP Telemetry
         const telemetry = PnPTelemetry.getInstance();
-        telemetry.optOut();
+        if (telemetry.optOut) telemetry.optOut();
 
         this.context.dynamicDataSourceManager.initializeSource(this);
 
@@ -390,7 +392,8 @@ export default class SearchBoxWebPart extends BaseClientSideWebPart<ISearchBoxWe
             instances.push(instance);
             }
             catch (error) {
-            console.log(`Unable to initialize '${provider.name}'. ${error}`);
+                Logger.error(error);
+                Logger.write(`[MSWP.SearchBoxWebPart.initSuggestionProviderInstances()]: Unable to initialize '${provider.name}'. ${error}`, LogLevel.Error);
             }
             finally {
             return {
@@ -637,7 +640,7 @@ export default class SearchBoxWebPart extends BaseClientSideWebPart<ISearchBoxWe
         } else {
             window.removeEventListener('hashchange', this.render);
         }
-        
+
     }
 
     /**
