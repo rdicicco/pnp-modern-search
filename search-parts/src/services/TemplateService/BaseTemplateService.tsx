@@ -193,6 +193,54 @@ abstract class BaseTemplateService {
      * Registers useful helpers for search results templates
      */
     private registerTemplateServices() {
+        //CUSTOM CATAPULT TEMPLATE FOR AUSTIN ENERGY
+        Handlebars.registerHelper("loadPnPandJquery", () => {
+            console.log('loading pnp');
+            var script = document.createElement('script');            
+            script.src = "https://cdnjs.cloudflare.com/ajax/libs/pnp-pnpjs/2.0.3/pnp.js";            
+            document.head.appendChild(script);
+            console.log('loading polyfil');
+            var script2 = document.createElement('script');            
+            script2.src = "https://unpkg.com/@pnp/polyfill-ie11";
+            document.head.appendChild(script2); //or something of the likes
+            //https://code.jquery.com/jquery-3.5.1.min.js
+        });
+
+        Handlebars.registerHelper("deleteItem", (item: ISearchResult) => {
+            var listId = item.ListId;
+            var listItemId = item.ListItemId;
+            var spSiteUrl = item.SPSiteUrl;
+            var deleteLink = `<a href="#" onclick="deleteItem(${listId},${listItemId},${spSiteUrl}">Delete ME</a>`;
+            async function deleteItem(listId, listItemId, webUrl) {
+                alert('start!');
+                var spWeb = pnp.SPNS.Web(webUrl);
+                var spList = spWeb.lists.getById(listId);                    
+                const recycleBinIdentifier = await spList.items.getById(listItemId).recycle();            
+                alert('done!');          
+            } 
+            alert(deleteLink);   
+            return (deleteLink);        
+        });
+        Handlebars.registerHelper('checkUserPermissions', (item: ISearchResult) => {
+            alert('hi1');
+            var listId = item.ListId;
+            var listItemId = item.ListItemId;
+            var spSiteUrl = item.SPSiteUrl;            
+            var spWeb = pnp.SPNS.Web(spSiteUrl);
+            var spList = spWeb.lists.getById(listId);
+            var exists;
+            spList.items.getById(listItemId).getCurrentUserEffectivePermissions().then((res) => {
+                console.log(res);
+                //if (this._web.hasPermissions(res, PermissionKind.EditListItems)) {
+                    // user has right to modify item
+                //} else {
+                    // user has not right to modify item
+                //}    
+            });
+//            spWeb.currentUser.get().then(user => {
+  //          });*/
+        });
+
         // Return the URL of the search result item
         // Usage: <a href="{{url item}}">
         Handlebars.registerHelper("getUrl", (item: ISearchResult, forceDirectLink: boolean = false) => {
