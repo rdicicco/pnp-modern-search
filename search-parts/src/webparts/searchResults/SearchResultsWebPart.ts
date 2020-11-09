@@ -72,6 +72,7 @@ import IQueryModifierConfiguration from '../../models/IQueryModifierConfiguratio
 import { SearchHelper } from '../../helpers/SearchHelper';
 import { StringHelper } from '../../helpers/StringHelper';
 import PnPTelemetry from "@pnp/telemetry-js";
+import { sp } from "@pnp/sp";
 
 export default class SearchResultsWebPart extends BaseClientSideWebPart<ISearchResultsWebPartProps> implements IDynamicDataCallables {
 
@@ -480,7 +481,12 @@ export default class SearchResultsWebPart extends BaseClientSideWebPart<ISearchR
 
         this._handleQueryStringChange();
 
-        return super.onInit();
+        //return super.onInit();
+        return super.onInit().then(_ => {       
+            sp.setup({
+              spfxContext: this.context
+            });
+          });
     }
 
 
