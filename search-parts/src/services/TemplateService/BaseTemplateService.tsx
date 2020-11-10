@@ -217,7 +217,7 @@ abstract class BaseTemplateService {
             sp.web.currentUserHasPermissions(PermissionKind.EditListItems).then(perms => {                
                 canEdit = perms;                
                 if (canEdit == true) {             
-                    var edits:any = document.getElementsByClassName('AES-edit-file')              
+                    var edits:any = document.getElementsByClassName('AES-edit-file');              
                     for (var i = 0; i < edits.length; i++) {
                         edits[i].style.display = "inline";
                     }
