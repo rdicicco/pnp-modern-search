@@ -482,11 +482,11 @@ export default class SearchResultsWebPart extends BaseClientSideWebPart<ISearchR
         this._handleQueryStringChange();
 
         //return super.onInit();
-        return super.onInit().then(_ => {       
+         return super.onInit().then(_ => {       
             sp.setup({
               spfxContext: this.context
             });
-          });
+          }); 
     }
 
 

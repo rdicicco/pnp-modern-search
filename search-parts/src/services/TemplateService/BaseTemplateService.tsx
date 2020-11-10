@@ -23,9 +23,9 @@ import groupBy from 'handlebars-group-by';
 import { Loader } from './LoadHelper';
 import { IComponentDefinition } from '../ExtensibilityService/IComponentDefinition';
 import { UrlHelper } from '../../helpers/UrlHelper';
+import { sp, PermissionKind } from "@pnp/sp";
 
 abstract class BaseTemplateService {
-
     private _ctx: WebPartContext;
 
     public CurrentLocale = "en";
@@ -187,58 +187,42 @@ abstract class BaseTemplateService {
             }
         }
         return previewUrl;
-    }
+    }    
 
     /**
      * Registers useful helpers for search results templates
      */
     private registerTemplateServices() {
-        //CUSTOM CATAPULT TEMPLATE FOR AUSTIN ENERGY
-        Handlebars.registerHelper("loadPnPandJquery", () => {
-            console.log('loading pnp');
-            var script = document.createElement('script');            
-            script.src = "https://cdnjs.cloudflare.com/ajax/libs/pnp-pnpjs/2.0.3/pnp.js";            
-            document.head.appendChild(script);
-            console.log('loading polyfil');
-            var script2 = document.createElement('script');            
-            script2.src = "https://unpkg.com/@pnp/polyfill-ie11";
-            document.head.appendChild(script2); //or something of the likes
-            //https://code.jquery.com/jquery-3.5.1.min.js
+        // CUSTOM PIRES HELPER
+        // ON CLICK EVENT LISTENER TO PROVIDE DELETE FUNCTIONALITY
+        Handlebars.registerHelper('deleteItemEventListener', () => {              
+            document.body.addEventListener("click", event => {                
+                let newEvent:any = event;      
+                console.log(newEvent);                                   
+                if (newEvent.target.className == "AES-popup ms-Icon ms-Icon--Delete") {
+                    if (confirm("Are you sure you want to send this item to the site recycle bin?")) {
+                        var parent = newEvent.path[1];
+                        console.log('parent',parent);
+                        var listId = parent.getAttribute("data-listId");
+                        var listItemId = parent.getAttribute("data-listItem");
+                        const recycleBinIdentifier: any = sp.web.lists.getById(listId).items.getById(listItemId).recycle();
+                    }
+                }
+            });                                                                      
         });
-
-        Handlebars.registerHelper("deleteItem", (item: ISearchResult) => {
-            var listId = item.ListId;
-            var listItemId = item.ListItemId;
-            var spSiteUrl = item.SPSiteUrl;
-            var deleteLink = `<a href="#" onclick="deleteItem(${listId},${listItemId},${spSiteUrl}">Delete ME</a>`;
-            async function deleteItem(listId, listItemId, webUrl) {
-                alert('start!');
-                var spWeb = pnp.SPNS.Web(webUrl);
-                var spList = spWeb.lists.getById(listId);                    
-                const recycleBinIdentifier = await spList.items.getById(listItemId).recycle();            
-                alert('done!');          
-            } 
-            alert(deleteLink);   
-            return (deleteLink);        
-        });
-        Handlebars.registerHelper('checkUserPermissions', (item: ISearchResult) => {
-            alert('hi1');
-            var listId = item.ListId;
-            var listItemId = item.ListItemId;
-            var spSiteUrl = item.SPSiteUrl;            
-            var spWeb = pnp.SPNS.Web(spSiteUrl);
-            var spList = spWeb.lists.getById(listId);
-            var exists;
-            spList.items.getById(listItemId).getCurrentUserEffectivePermissions().then((res) => {
-                console.log(res);
-                //if (this._web.hasPermissions(res, PermissionKind.EditListItems)) {
-                    // user has right to modify item
-                //} else {
-                    // user has not right to modify item
-                //}    
-            });
-//            spWeb.currentUser.get().then(user => {
-  //          });*/
+        // CUSTOM PIRES HELPER
+        // CHECKS FOR EDIT PERMISSIONS AND SHOWS THE EDIT AND DELETE BUTTONS IF TRUE
+        Handlebars.registerHelper('checkUserPermissions', () => {            
+            let canEdit = false;                          
+            sp.web.currentUserHasPermissions(PermissionKind.EditListItems).then(perms => {                
+                canEdit = perms;                
+                if (canEdit == true) {             
+                    var edits:any = document.getElementsByClassName('AES-edit-file')              
+                    for (var i = 0; i < edits.length; i++) {
+                        edits[i].style.display = "inline";
+                    }
+                }
+            });                        
         });
 
         // Return the URL of the search result item
